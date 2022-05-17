@@ -1,0 +1,20 @@
+// All the graphQL query requests
+import { gql } from '@apollo/client';
+
+export const QUERY_ME = gql`
+    {
+        me {
+            _id
+            username
+            email
+            savedBooks {
+                bookId
+                author
+                title
+                description
+                image
+                link
+            }
+        }
+    }
+`;

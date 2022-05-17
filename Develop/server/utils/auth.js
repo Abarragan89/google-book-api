@@ -14,6 +14,7 @@ module.exports = {
     // token can be sent via req.body, req.query or headers
     let token = req.body.token || req.query.token || req.headers.authorization;
 
+    console.log(token)
     // if in headers, separate from "Bearer"
     if(req.headers.authorization) {
       token = token.split(' ').pop().trim();

@@ -6,19 +6,18 @@ const resolvers = {
     Query: {
         me: async (parent, args, context) => {
             if(context.user) {
-                const userData = await User.finOne({
+                const userData = await User.findOne({
                     _id: context.user._id
                 })
-                .select('-__v, password')
+                .select('-password -__v')
                 .populate('savedBooks');
-            
             return userData
             }
         throw new AuthenticationError('Not logged in.');
         },
     },
     Mutation: {
-        login: async (parent, { email, password}) => {
+        login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
             if(!user) {
                 throw new AuthenticationError('Wrong Credentials');
@@ -28,21 +27,23 @@ const resolvers = {
                 throw new AuthenticationError('Wrong Credentials');
             }
             const token = signToken(user);
-            return token; 
+            return {token, user}
         },
         addUser: async (parent, args) => {
             const user = await User.create(args);
             const token = signToken(user);
-            return token;
+            return {token, user };
         },
         saveBook: async (parent, args, context) => {
+            console.log(`this is the args ${args}`, args)
             if(!context.user) {
                 throw new AuthenticationError('Must be signed in.')
             }
-            const updatedUser = await User.findOneAndupdate(
+            console.log(`this is the context`, context.user)
+            const updatedUser = await User.findOneAndUpdate(
                 { _id: context.user._id },
-                { $addToSet: { savedBooks: args }},
-                { new: true, runValidators: true }
+                { $addToSet: { savedBooks: args.bookInput }},
+                { new: true,  runValidators: true}
             );
             return updatedUser
         },
